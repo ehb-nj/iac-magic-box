@@ -1,0 +1,61 @@
+# Packer Linux Templates
+
+## Project Description
+
+This repository contains Packer templates for creating Linux machine images. Use these templates to automate the provisioning and configuration of Linux-based virtual machines.
+
+## Installation Instructions
+
+Before you start using the Packer templates, make sure to set up your development environment by sourcing your tox (virtual) environment. This will provide you with the necessary tools and dependencies required for the build process.
+
+```bash
+tox
+source .tox/py3-tox/bin/activate
+```
+
+## Usage
+
+To build a machine image using these Packer templates, follow these steps:
+
+1. Clone this repository.
+2. Navigate to the directory of the desired template.
+3. Run Packer build command, specifying the template file.
+
+Example:
+```bash
+# change {aaa} with "linux" or "windows"
+cd packer/packer-{aaa}/
+packer init .
+packer validate .
+packer build -on-error=ask .
+```
+
+## Configuration
+
+You can customize the configuration of the Packer templates by editing the respective variables files. Adjust parameters as needed to fit your specific requirements.
+
+## Contributing Guidelines
+
+We welcome contributions to this project. If you'd like to contribute, please follow these steps:
+
+1. Create a new branch from the "main" branch with a name that describes your feature or change. For example, if you're working on a feature called "ABC," you can create a branch like this:
+
+```
+git checkout -b feat/abc-feature
+```
+
+2. Make your changes in the branch, commit your work, and push the branch to the repository.
+
+3. Create a pull request (PR) on GitHub. The PR should include a description of your changes and any relevant information.
+
+4. Your PR will be reviewed, and if it meets the project's guidelines, it will be merged.
+
+## License
+
+This project is licensed under the GNU General Public License version 3 (GPLv3). For more details, please see the [LICENSE](LICENSE) file.
+
+## Contact Information
+
+If you have any questions or need assistance, please feel free to reach out to us. Create an issue and let's chat.
+
+We appreciate your contributions and support!
