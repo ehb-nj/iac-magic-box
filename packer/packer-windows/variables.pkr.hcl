@@ -12,8 +12,11 @@ variable "template_description" {}
 variable "iso_file" {}
 variable "autounattend_iso" {}
 variable "autounattend_checksum" {}
+variable "scripts_iso" {}
+variable "scripts_checksum" {}
 variable "vm_cpu_cores" {}
 variable "vm_memory" {}
 variable "vm_disk_size" {}
 variable "vm_sockets" {}
 variable "os" {}
+variable "virtio_iso" {}

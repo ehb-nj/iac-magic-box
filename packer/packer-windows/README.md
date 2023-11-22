@@ -6,9 +6,11 @@ The aim of this section is to build Windows images that can be cloned with Terra
 
 Install "Packer" on your client machine.
 
-Create the templates in a Network with DHCP available and Internet connexion for Widows Updates.
+Create the templates in a Network with DHCP available and Internet connexion for Windows Updates.
 
 We need to have an HTTPS connexion from your machine to the Proxmox server. You also need WINRM connexion between the templates created (2 TCP ports need to be opened : 5985, 5986).
+
+You need to create the "Templates" pool on your Proxmox (Datacenter->Permissions->Pools).
 
 ### MacOS
 ```
@@ -41,10 +43,21 @@ packer/packer-windows/sysprep/CloudbaseInitSetup_Stable_x64.msi
 
 You need to download Windows ISOs. By default, autounattend scripts use the French version of Windows images. If you need to modify the language parameters, you must do so in each Autounattend.xml script in the answer_file directory.
 
+We also need the virtio drivers. The iso must be uploaded via the Web Interface (or scp). The name of this iso file must be changed on the ```virtio_iso``` variable on the corresponding "pkvars.hcl" file.
+
 ### Upload to Proxmox
 
 Upload the recovered ISO files to Proxmox and change the name in the Packer settings file. Each version of Windows has its own settings file.
 
+### Dedicated user for Packer
+```
+pveum useradd infra_as_code@pve
+pveum passwd infra_as_code@pve
+# Role Packer Creation
+pveum roleadd Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datastore.AllocateTemplate Datastore.Audit Datastore.AllocateSpace Sys.Modify VM.Config.Options VM.Allocate VM.Audit VM.Console VM.Config.CDROM VM.Config.Cloudinit VM.Config.Network VM.PowerMgmt VM.Config.HWType VM.Monitor SDN.Use"
+# Role attribution
+pveum acl modify / -user 'infra_as_code@pve' -role Packer
+```
 ### Prepare config.auto.pkrvars.hcl
 
 Now go to /packer/packer-windows/ and modify the config.auto.pkrvars.hcl template file
@@ -59,22 +72,13 @@ proxmox_username        = "user"
 proxmox_token           = "changeme"
 proxmox_skip_tls_verify = "true"
 proxmox_node            = "mynode"
-proxmox_pool            = "mypool"
+proxmox_pool            = "Template"
 proxmox_storage         = "local"
 ```
 ### Start ISO generation
 ```
 ./build_proxmox_iso.sh
 ```
-### Upload the ISOs
-
-We need to upload on Proxmox the additional tools with the freshly generated ISOs.
-
-We can do it from the Web Interface or SCP via SSH.
-
-We need to also add the drivers located in the virtio-win.iso. We can download it here :
-
-https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.240-1/
 
 ## Build Image Template
 
@@ -89,11 +93,15 @@ template_description  = "Windows Server 2019 64-bit - template built with Packer
 iso_file              = "local:iso/fr-fr_windows_server_2019_updated_aug_2021_x64_dvd_b863695e.iso"
 autounattend_iso      = "./iso/Autounattend_winserver2019_cloudinit.iso"
 autounattend_checksum = "sha256:3247ca9ffacb61627dddfde32d54d7ddba0af2ab62697fa5f94dd0b1bd56a5da"
+scripts_iso           = "./iso/scripts_withcloudinit.iso"
+scripts_checksum      = "sha256:a58726bc15f6251e8fe804ff59712c7e3f4afbf50de4b54174f6262b6bbe0550"
 vm_cpu_cores          = "2"
 vm_memory             = "4096"
 vm_disk_size          = "40G"
 vm_sockets            = "1"
 os                    = "win10"
+virtio_iso            = "local:iso/virtio-win-0.1.240.iso"
+
 ```
 Launch the generation with these commands :
 ```
