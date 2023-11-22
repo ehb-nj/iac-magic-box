@@ -70,6 +70,7 @@ build {
     elevated_password = "${var.winrm_password}"
     elevated_user     = "${var.winrm_username}"
     scripts           = ["${path.root}/scripts/sysprep/cloudbase-init.ps1"]
+    max_retries       = 3
   }
 
   provisioner "powershell" {
@@ -77,5 +78,6 @@ build {
     elevated_user     = "${var.winrm_username}"
     pause_before      = "1m0s"
     scripts           = ["${path.root}/scripts/sysprep/cloudbase-init-p2.ps1"]
+    max_retries       = 3
   }
 }
