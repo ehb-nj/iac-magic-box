@@ -9,6 +9,10 @@ Many projects already exist on this theme, and we'll credit them all as referenc
 
 It may be a long road, but it's already begun.
 
+## VyOS
+
+VyOS is the first-level firewall that manages the various networks within the PVE. The purpose of this firewall is to be the heart of the routing network.
+
 ## Vault
 
 We need a way to manage secrets and certificates.
