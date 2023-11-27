@@ -9,6 +9,10 @@ Many projects already exist on this theme, and we'll credit them all as referenc
 
 It may be a long road, but it's already begun.
 
+## OpenWRT
+
+OpenWRT is choosen for its lightweight footprint for the core network. It's the main router of this architecture.
+
 ## Vault
 
 We need a way to manage secrets and certificates.
