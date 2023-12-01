@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    networks:
+      - local-keycloak
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  keycloak:
+    depends_on:
+      - postgres
+    container_name: keycloak
+    command: ["start", "--import-realm", "--https-certificate-file=/etc/http-ssl/httpd.crt","--https-certificate-key-file=/etc/http-ssl/httpd-pkcs8.key" , "--hostname-strict=false", "--hostname-strict-https=false"]
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres
+      DB_DATABASE: ${POSTGRESQL_DB}
+      DB_USER: ${POSTGRESQL_USER}
+      DB_PASSWORD: ${POSTGRESQL_PASS}
+      KC_HOSTNAME_STRICT_HTTPS: 'false'
+      KC_HOSTNAME_STRICT_HTTP: 'false'
+      KC_PROXY: 'edge'
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_ENABLED: 'true'
+    image: keycloak/keycloak:${KEYCLOAK_VERSION}
+    ports:
+      - "9443:8443"
+    restart: unless-stopped
+    networks:
+      - local-keycloak
+    volumes:
+      - ./keycloak-import:/opt/keycloak/data/import
+      - ./ssl:/etc/http-ssl
+
+networks:
+  local-keycloak:
