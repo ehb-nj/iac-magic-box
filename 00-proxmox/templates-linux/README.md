@@ -70,7 +70,6 @@ qm set 9001 --serial0 socket --vga serial0
 qm importdisk 9001 jammy-server-cloudimg-amd64-disk-kvm.img local-lvm
 qm set 9001 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-9001-disk-0
 qm set 9001 --boot c --bootdisk scsi0
-qm resize 9001 scsi0 +18G
 qm set 9001 --ide2 local-lvm:cloudinit
 qm template 9001
 ```

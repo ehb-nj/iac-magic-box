@@ -11,7 +11,7 @@ services:
     networks:
       - local-keycloak
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - ./volumes/postgres-data:/var/lib/postgresql/data
 
   keycloak:
     depends_on:
@@ -37,8 +37,8 @@ services:
     networks:
       - local-keycloak
     volumes:
-      - ./keycloak-import:/opt/keycloak/data/import
-      - ./ssl:/etc/http-ssl
+      - ./volumes/keycloak-import:/opt/keycloak/data/import
+      - ./volumes/ssl:/etc/http-ssl
 
 networks:
   local-keycloak:

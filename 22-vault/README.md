@@ -11,6 +11,7 @@ For testing purpose we are using a LXC container. The Alma Linux will be the fla
 - PVE skills
 - Docker-Compose skills
 - PKI notions
+- FreeIPA & KeyCloak already deployed
 
 ## LXC Alma Linux
 
