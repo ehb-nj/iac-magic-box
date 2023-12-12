@@ -11,6 +11,7 @@ For testing purpose we are using a LXC container. The Alma Linux will be the fla
 - PVE skills
 - Docker-Compose skills
 - PKI notions
+- FreeIPA & KeyCloak already deployed
 
 ## LXC Alma Linux
 
@@ -228,7 +229,7 @@ Create the `admins` group from Vault (external group):
 
 ![](assets/vault_admins_group.png)
 
-Affect an aliase (corresponding the OIDC admin group name) :
+Affect an alias (corresponding the OIDC admin group name) :
 
 ![](assets/vault_admins_aliases.png)
 

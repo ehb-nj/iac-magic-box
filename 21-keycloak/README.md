@@ -4,6 +4,12 @@ FreeIPA is a Identity Provider and a PKI. When you deploy FreeIPA you have by de
 
 We are going to deploy KeyCloak on docker. We've choosen this type of deployment because it can be temporary. We'll be able to deploy this service on Kube at a later date.
 
+## Prerequisites
+
+- PVE skills
+- Docker-Compose skills
+- FreeIPA already installed
+
 ## Docker Installation
 
 For going faster we can use a docker-compose file. For this installation we can use an old export of an already configured realm. Or we can go from scratch. (A json file will be provided for example).
@@ -13,8 +19,7 @@ For going faster we can use a docker-compose file. For this installation we can 
 We need to create 2 folders :
 
 ```
-mkdir postgres-data
-mkdir ssl
+mkdir -p volumes/{ssl,postgres-data}
 ```
 
 ### On FreeIPA
@@ -105,10 +110,10 @@ Select `User Federation`, then click the `Add provider...` dropdown and select `
 - Edit Mode: `WRITABLE`
 - Vendor: `Red Hat Directory Server`
 - UUID LDAP Attribute: `ipaUniqueID`
-- Connection URL: `ldap://ipa.example.com`
-- Users DN: `cn=users,cn=accounts,dc=example,dc=com`
-- Custom User LDAP Filter: `(&(objectclass=posixaccount)(memberOf=cn=app_keycloak,cn=groups,cn=accounts,dc=example,dc=com))`
-- Bind DN: `uid=svc_keycloak,cn=users,cn=accounts,dc=example,dc=com`
+- Connection URL: `ldap://ipa.play.lan`
+- Users DN: `cn=users,cn=accounts,dc=play,dc=lan`
+- Custom User LDAP Filter: `(&(objectclass=posixaccount)(memberOf=cn=app_keycloak,cn=groups,cn=accounts,dc=play,dc=lan))`
+- Bind DN: `uid=svc_keycloak,cn=users,cn=accounts,dc=play,dc=lan`
 - Bind Credential: `<password of svc_keycloak>`
 - Sync Settings - Periodic Full Sync: `On`
 - Sync Settings - Periodic Changed Users Sync: `On`
@@ -142,7 +147,7 @@ You may notice that if you go to `Manage` ⇒ `Groups`, it will not have any of 
 
 - Groups
     - Type: `group-ldap-mapper`
-    - LDAP Groups DN: `cn=groups,cn=accounts,dc=example,dc=com`
+    - LDAP Groups DN: `cn=groups,cn=accounts,dc=play,dc=lan`
 
 Click Save, then `Sync LDAP Groups to Keycloak`. If you go to Groups, you should now see all your FreeIPA Groups.
 
@@ -164,14 +169,14 @@ We need to launch `update-ca-certificates`.
 
 We need to add client from the web interface of KeyCloak :
 
-![](assets/images/client_keycloak_configuration.png)
+![](assets/client_keycloak_configuration.png)
 
 ### Last step : Configure Proxmox
 
 On `Datacenter` ⇒ `node_name` ⇒ `Realms` we can configure a realm.
 
 
-![](assets/images/realm_proxmox_configuration.png)
+![](assets/realm_proxmox_configuration.png)
 
 ### Conclusion
 
