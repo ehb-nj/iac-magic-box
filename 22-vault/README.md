@@ -229,7 +229,7 @@ Create the `admins` group from Vault (external group):
 
 ![](assets/vault_admins_group.png)
 
-Affect an aliase (corresponding the OIDC admin group name) :
+Affect an alias (corresponding the OIDC admin group name) :
 
 ![](assets/vault_admins_aliases.png)
 
