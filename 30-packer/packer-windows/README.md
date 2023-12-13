@@ -4,7 +4,10 @@ The aim of this section is to build Windows images that can be cloned with Terra
 
 ## Requirements
 
-Install "Packer" on your client machine.
+- Packer on the "admin machine"
+- Vault on the "admin machine"
+- ISOs of the operating systems
+- Mkisofs
 
 Create the templates in a Network with DHCP available and Internet connexion for Windows Updates.
 
@@ -16,16 +19,18 @@ You need to create the "Templates" pool on your Proxmox (Datacenter->Permissions
 ```
 brew tap hashicorp/tap
 brew install hashicorp/tap/packer
+brew install dvdrtools
 ```
 
 ### Ubuntu
 ```
-apt update
-apt -y install apt-transport-https ca-certificates curl software-properties-common
+sudo apt update
+sudo apt -y install apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt update
-apt install packer
+sudo apt update
+sudo apt install packer
+sudo apt install mkisofs
 ```
 
 ### Cloudbase-Init 
@@ -34,7 +39,7 @@ Cloudbase-Init is the Windows version of Cloud-Init.
 Download here : https://cloudbase.it/cloudbase-init/
 Put the msi here (and rename it) :
 ```
-packer/packer-windows/sysprep/CloudbaseInitSetup_Stable_x64.msi
+30-packer/packer-windows/sysprep/CloudbaseInitSetup_Stable_x64.msi
 ```
 
 ## Build ISO images
@@ -43,7 +48,7 @@ packer/packer-windows/sysprep/CloudbaseInitSetup_Stable_x64.msi
 
 You need to download Windows ISOs. By default, autounattend scripts use the French version of Windows images. If you need to modify the language parameters, you must do so in each Autounattend.xml script in the answer_file directory.
 
-We also need the virtio drivers. The iso must be uploaded via the Web Interface (or scp). The name of this iso file must be changed on the ```virtio_iso``` variable on the corresponding "pkvars.hcl" file.
+We also need the virtio drivers. The iso must be uploaded via the Web Interface (or scp). The name of this iso file must be changed on the `virtio_iso` variable on the corresponding "pkvars.hcl" file.
 
 ### Upload to Proxmox
 
@@ -52,29 +57,48 @@ Upload the recovered ISO files to Proxmox and change the name in the Packer sett
 ### Dedicated user for Packer
 ```
 pveum useradd infra_as_code@pve
-pveum passwd infra_as_code@pve
+pveum passwd infra_as_code
 # Role Packer Creation
 pveum roleadd Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datastore.AllocateTemplate Datastore.Audit Datastore.AllocateSpace Sys.Modify VM.Config.Options VM.Allocate VM.Audit VM.Console VM.Config.CDROM VM.Config.Cloudinit VM.Config.Network VM.PowerMgmt VM.Config.HWType VM.Monitor SDN.Use"
 # Role attribution
 pveum acl modify / -user 'infra_as_code@pve' -role Packer
 ```
-### Prepare config.auto.pkrvars.hcl
+### Prepare the secrets in Vault
 
-Now go to /packer/packer-windows/ and modify the config.auto.pkrvars.hcl template file
+Create policy "packer-windows-policy" :
+
 ```
-cd /packer/packer-windows/
-cp config.auto.pkrvars.hcl.template config.auto.pkrvars.hcl
+vault policy write packer-windows-policy - << EOF
+path "secrets/packer-windows/*" {
+  capabilities = ["read"]
+}
+EOF
 ```
-The config.auto.pkrvars.hcl file will contain all the informations needed by packer to contact the proxmox api
+Affect this policy to a new token :
+
 ```
-proxmox_url             = "https://proxmox:8006/api2/json"
-proxmox_username        = "user"
-proxmox_token           = "changeme"
-proxmox_skip_tls_verify = "true"
-proxmox_node            = "mynode"
-proxmox_pool            = "Template"
-proxmox_storage         = "local"
+vault token create -ttl=1h -policy=packer-windows-policy
 ```
+
+You need to create the environment variables `VAULT_ADDR`and the `VAULT_TOKEN`.
+
+```
+export VAULT_ADDR="https://vault.play.lan:8200"
+export VAULT_TOKEN="hvs.xxxxxxxxxx....."
+```
+
+You need to create secrets in Vault.
+
+```
+vault kv create secrets/packer-windows
+vault kv put secrets/packer-windows/proxmox \
+proxmox_username="infra_as_code@pve" \
+proxmox_url="https://pve.play.lan:8006/api2/json" \
+proxmox_password="infra_as_code" \
+proxmox_skip_tls_verify="true" \
+proxmox_node="pve" proxmox_pool="Templates" \ proxmox_storage="local-lvm"
+```
+
 ### Start ISO generation
 ```
 ./build_proxmox_iso.sh
@@ -109,7 +133,7 @@ packer init .
 packer validate -var-file=windows_server2019_proxmox_cloudinit.pkvars.hcl .
 packer build -var-file=windows_server2019_proxmox_cloudinit.pkvars.hcl .
 ```
-### Other OS
+### Other Windows OS
 
 Same as Windows 2019 !!!
 

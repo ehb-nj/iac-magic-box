@@ -1,7 +1,0 @@
-proxmox_url             = "https://proxmox:8006/api2/json"
-proxmox_username        = "user"
-proxmox_token           = "changeme"
-proxmox_skip_tls_verify = "true"
-proxmox_node            = "mynode"
-proxmox_pool            = "mypool"
-proxmox_storage         = "local"

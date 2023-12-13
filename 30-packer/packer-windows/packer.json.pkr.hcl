@@ -1,4 +1,3 @@
-
 packer {
   required_plugins {
     proxmox = {
@@ -29,31 +28,31 @@ source "proxmox-iso" "windows" {
     unmount  = true
   }
   cloud_init              = true
-  cloud_init_storage_pool = "${var.proxmox_storage}"
+  cloud_init_storage_pool = "${local.proxmox_storage}"
   communicator            = "winrm"
   cores                   = "${var.vm_cpu_cores}"
   disks {
     disk_size         = "${var.vm_disk_size}"
     format            = "raw"
-    storage_pool      = "${var.proxmox_storage}"
+    storage_pool      = "${local.proxmox_storage}"
     type              = "sata"
   }
-  insecure_skip_tls_verify = "${var.proxmox_skip_tls_verify}"
+  insecure_skip_tls_verify = "${local.proxmox_skip_tls_verify}"
   iso_file                 = "${var.iso_file}"
   memory                   = "${var.vm_memory}"
   network_adapters {
     bridge = "vmbr0"
     model  = "virtio"
   }
-  node                 = "${var.proxmox_node}"
+  node                 = "${local.proxmox_node}"
   os                   = "${var.os}"
-  password             = "${var.proxmox_password}"
-  pool                 = "${var.proxmox_pool}"
-  proxmox_url          = "${var.proxmox_url}"
+  password             = "${local.proxmox_password}"
+  pool                 = "${local.proxmox_pool}"
+  proxmox_url          = "${local.proxmox_url}"
   sockets              = "${var.vm_sockets}"
   template_description = "${var.template_description}"
   template_name        = "${var.vm_name}"
-  username             = "${var.proxmox_username}"
+  username             = "${local.proxmox_username}"
   vm_name              = "${var.vm_name}"
   winrm_insecure       = true
   winrm_no_proxy       = true
