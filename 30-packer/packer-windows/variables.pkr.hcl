@@ -1,10 +1,3 @@
-variable "proxmox_url" {}
-variable "proxmox_username" {}
-variable "proxmox_password" {}
-variable "proxmox_skip_tls_verify" {}
-variable "proxmox_node" {}
-variable "proxmox_pool" {}
-variable "proxmox_storage" {}
 variable "winrm_username" {}
 variable "winrm_password" {}
 variable "vm_name" {}
@@ -20,3 +13,13 @@ variable "vm_disk_size" {}
 variable "vm_sockets" {}
 variable "os" {}
 variable "virtio_iso" {}
+
+locals {
+  proxmox_node = "${vault("/secrets/packer-windows/proxmox", "proxmox_node")}"
+  proxmox_password = "${vault("/secrets/packer-windows/proxmox", "proxmox_password")}"
+  proxmox_pool = "${vault("/secrets/packer-windows/proxmox", "proxmox_pool")}"
+  proxmox_skip_tls_verify ="${vault("/secrets/packer-windows/proxmox", "proxmox_skip_tls_verify")}"
+  proxmox_storage = "${vault("/secrets/packer-windows/proxmox", "proxmox_storage")}"
+  proxmox_url = "${vault("/secrets/packer-windows/proxmox", "proxmox_url")}"
+  proxmox_username = "${vault("/secrets/packer-windows/proxmox", "proxmox_username")}"
+}
