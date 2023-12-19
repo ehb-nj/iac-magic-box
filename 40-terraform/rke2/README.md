@@ -66,9 +66,9 @@ pveum user token add "infra_as_code@pve" "terraform" --privsep 0
 
 In my example I've taken the `infra_as_code` user created in the `30-packer` section.
 
-Need to add `Pool.Audit` and `Pool.Allocate` (On PVE):
+Need to add `Pool.Audit`, `Pool.Allocate`, `Datastore.Allocate`, `VM.Allocate` (On PVE):
 ```
-pveum role modify Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datastore.AllocateTemplate Datastore.Audit Datastore.AllocateSpace Sys.Modify VM.Config.Options VM.Allocate VM.Audit VM.Console VM.Config.CDROM VM.Config.Cloudinit VM.Config.Network VM.PowerMgmt VM.Config.HWType VM.Monitor SDN.Use Pool.Audit Pool.Allocate"
+pveum role modify Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datastore.AllocateTemplate Datastore.Audit Datastore.AllocateSpace Sys.Modify VM.Config.Options VM.Allocate VM.Audit VM.Console VM.Config.CDROM VM.Config.Cloudinit VM.Config.Network VM.PowerMgmt VM.Config.HWType VM.Monitor SDN.Use Pool.Audit Pool.Allocate Datastore.Allocate VM.Clone"
 ```
 Create secrets in Vault :
 ```
