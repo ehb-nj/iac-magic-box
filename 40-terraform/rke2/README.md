@@ -6,7 +6,8 @@
 - Some Kubernetes knowledge
 - Debian based image template (Ubuntu Recommended) available
 - Terraform installed on the "admin machine"
-- Proxmox deployed and installed
+- Proxmox deployed and ready with snippets (for cloud-init) activated
+- Network for Kube ready with Internet connection
 
 ## Terraform
 
@@ -54,7 +55,7 @@ Modify the variables to match your environment.
 
 ### Launching the magic
 
-The RK2 environment is installed with these commands :
+The RK2 environment is prepared and installed with these commands :
 ```
 terraform init
 terraform plan -var-file env.tfvars
@@ -67,16 +68,17 @@ terraform destroy -var-file env.tfvars
 ## Testing RKE2
 
 You need to install `kubectl`
-
+MacOS :
 ```
 brew install kubectl (on MacOS)
-
-(on Other Linux OS)
+```
+Other Linux OS :
+```
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl
 sudo mv kubectl /usr/local/bin
 ```
-You need to copy the `/etc/rancher/rke2/rke2.yaml` (from the master-0) to you local machine (`~/.kube/config`).  And change the IP adress to `172.16.2.20`.
+You need to copy the `/etc/rancher/rke2/rke2.yaml` (from the rke-master-01) to you local machine (`~/.kube/config`).  And change the IP adress to the corresponding `rke-master-01`.
 ```
 kubectl get nodes
 

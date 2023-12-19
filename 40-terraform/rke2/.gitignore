@@ -4,3 +4,4 @@
 *.backup
 *.tfstate
 *.log
+*.info

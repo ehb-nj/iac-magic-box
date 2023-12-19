@@ -1,9 +1,9 @@
 # create master
 resource "proxmox_virtual_environment_vm" "vm_worker" {
   count = var.vmdata.worker_count
-  name  = "rke-worker-${count.index}"
+  name  = "rke-worker-${format("%02.0f",count.index+1)}"
   description = "Managed by Terraform / RKE2"
-  tags        = ["terraform", "ubuntu"]
+  tags        = ["terraform", "ubuntu", "rke2"]
 
   node_name = var.vmdata.pve_node
 
@@ -79,7 +79,7 @@ resource "proxmox_virtual_environment_file" "worker_user_data" {
 
   source_raw {
     data = data.template_file.worker_user_data[count.index].rendered
-    file_name = "cloud_init_rke-worker-${count.index}.yml"
+    file_name = "cloud_init_rke-worker-${format("%02.0f",count.index+1)}.yml"
   }
   depends_on = [ data.template_file.worker_user_data ]
 }
