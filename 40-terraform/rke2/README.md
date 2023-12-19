@@ -8,6 +8,8 @@
 - Terraform installed on the "admin machine"
 - Proxmox deployed and ready with snippets (for cloud-init) activated
 - Network for Kube ready with Internet connection
+- Network configured and flow configured to access PVE node and Kube nodes
+- SSH-Agent configured (use to deploy snippets for cloud-init)
 
 ## Terraform
 
@@ -32,14 +34,43 @@ sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update
 sudo apt-get install terraform
 ```
+### SSH-Agent
+
+SSH is needed to upload ressources to the snippet repository (by default our ssh key is used):
+
+```
+ssh-add ~/.ssh/id_rsa
+```
+
 ### Vault secrets preparation
 
 The token id has this form : `user@pve!token_name=password`
 
 You can create this token directly from the PVE Web Interface. `Datacenter` -> `Permissions` -> `API Tokens`
 
+Or use cmd line on PVE :
+```
+pveum user token add "infra_as_code@pve" "terraform" --privsep 0
+
+┌──────────────┬──────────────────────────────────────┐
+│ key          │ value                                │
+╞══════════════╪══════════════════════════════════════╡
+│ full-tokenid │ infra_as_code@pve!terraform          │
+├──────────────┼──────────────────────────────────────┤
+│ info         │ {"privsep":"0"}                      │
+├──────────────┼──────────────────────────────────────┤
+│ value        │ 6052e2dc-a66c-4434-806a-f0a1179bf10e │
+└──────────────┴──────────────────────────────────────┘
+
+```
+
 In my example I've taken the `infra_as_code` user created in the `30-packer` section.
 
+Need to add `Pool.Audit` and `Pool.Allocate` (On PVE):
+```
+pveum role modify Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datastore.AllocateTemplate Datastore.Audit Datastore.AllocateSpace Sys.Modify VM.Config.Options VM.Allocate VM.Audit VM.Console VM.Config.CDROM VM.Config.Cloudinit VM.Config.Network VM.PowerMgmt VM.Config.HWType VM.Monitor SDN.Use Pool.Audit Pool.Allocate"
+```
+Create secrets in Vault :
 ```
 vault secrets enable -path=secrets/terraform kv
 vault kv put secrets/terraform/proxmox tokenid="xxx" proxmox_url="xxx"
