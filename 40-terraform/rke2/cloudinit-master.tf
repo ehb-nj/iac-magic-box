@@ -61,7 +61,7 @@ data "template_file" "master_user_data" {
   count = var.vmdata.master_count
   template = file("${path.module}/templates/cloud_init_master.cfg")
   vars = {
-    HOSTNAME = "rke-master-${count.index}",
+    HOSTNAME = "rke-master-${format("%02.0f",count.index+1)}",
     USERNAME = var.vmdata.username,
     KUBERNETES_MASTER_ACTUAL = count.index,
     KUBERNETES_MASTER_COUNT = var.vmdata.master_count,
