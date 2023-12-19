@@ -17,7 +17,7 @@ resource "proxmox_virtual_environment_vm" "vm_master" {
   }
 
   disk {
-    datastore_id = "local-lvm"
+    datastore_id = var.vmdata.diskstorage
     interface    = "scsi0"
     size = var.vmdata.master_disk_size
   }
@@ -45,7 +45,7 @@ resource "proxmox_virtual_environment_vm" "vm_master" {
       }
     }
     dns {
-      domain = "play.lan"
+      domain = "${var.vmdata.rke_domain}"
       server = "${var.vmdata.ip_dns}"
     }
     user_data_file_id = "${proxmox_virtual_environment_file.master_user_data[count.index].id}"
@@ -89,4 +89,3 @@ resource "proxmox_virtual_environment_pool" "operations_pool" {
   comment = "Managed by Terraform"
   pool_id = "${var.vmdata.pve_pool}"
 }
-
