@@ -1,6 +1,6 @@
 # FreeIPA
 
-We are going to use a VM based on Fedora 39. The cloud-init image is built in this section : `proxmox/linux-templates`.
+We are going to use a LXC Container based on AlmaLinux. You can add a template of your LXC from `node` ⇒ `local` ⇒ `CT Templates` ⇒ `Templates`.
 
 ## Prerequisites
 
@@ -12,27 +12,27 @@ We are going to use a VM based on Fedora 39. The cloud-init image is built in th
 
 The base OS needs to be a `Fedora / Redhat / CentOS / AlmaLinux / Rocky Linux`.
 
-We are going to test with a Fedora 39 Cloud version with cloud-init.
+Minimum ressources :
+
+- Memory : 2Gb
+- CPU : 1
+- Network : 172.16.0.10/24 - Gateway : 172.16.0.1
+
+You need to deploy your image with at least a temporary root password for adding `openssh-server` package manually.
+
+```
+dnf install -y openssh-server
+systemctl enable sshd
+systemctl start sshd
+```
+Now after you change your root password for something more secure you can connect with your SSH key.
 
 ## FreeIPA
 
 (We follow the official documentation, FreeIPA is not really difficult to install).
 
-Kerberos authentication relies on a static hostname, if the hostname changes, Kerberos authentication may break. Thus, the testing machine should not use dynamically configured hostname from DHCP, but rather a static one configured in `/etc/hostname`.
+Normally when you install your LXC container a new line is added automatically in your `/etc/hosts` file.
 
-With cloud-init we need to remove the domain name inserted for localhost/127.0.0.1, and replace it with the real IP and "ipa.play.lan".
-
-```
-# The following lines are desirable for IPv4 capable hosts
-127.0.0.1 localhost.localdomain localhost
-127.0.0.1 localhost4.localdomain4 localhost4
-
-# The following lines are desirable for IPv6 capable hosts
-::1 localhost.localdomain localhost
-::1 localhost6.localdomain6 localhost6
-
-172.16.0.10 ipa.play.lan ipa
-```
 ### Install FreeIPA server.
 
 From a root terminal, run:
@@ -42,7 +42,7 @@ We don't need DNS package this one is handle by DNSMasq on OpenWRT.
 
 ### Configure a FreeIPA server.
 
-The command can take arguments or can be run in the interactive mode. You can get more details with `man ipa-server-install`. To start the interactive installation, run: `ipa-server-install`. The command will at first gather all required information and then configure all required services.
+The command can take arguments or can be run in the interactive mode. You can get more details with `man ipa-server-install`. To start the interactive installation, run: `ipa-server-install --no-ntp`. The command will at first gather all required information and then configure all required services.
 
 ### Variables of the installation (correct by default)
 ```

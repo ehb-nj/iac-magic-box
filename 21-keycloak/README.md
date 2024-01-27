@@ -14,6 +14,28 @@ We are going to deploy KeyCloak on docker. We've choosen this type of deployment
 
 For going faster we can use a docker-compose file. For this installation we can use an old export of an already configured realm. Or we can go from scratch. (A json file will be provided for example).
 
+Docker :
+```
+dnf install -y yum-utils
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+dnf -y update
+dnf -y install docker-ce docker-ce-cli containerd.io wget
+```
+Docker-compose :
+```
+curl -s https://api.github.com/repos/docker/compose/releases/latest \
+  | grep browser_download_url \
+  | grep docker-compose-linux-x86_64 \
+  | cut -d '"' -f 4 \
+  | wget -qi -
+    
+chmod +x docker-compose-linux-x86_64
+sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+
+systemctl enable docker 
+systemctl start docker
+```
+
 ### Folder creation
 
 We need to create 2 folders :
@@ -174,7 +196,6 @@ We need to add client from the web interface of KeyCloak :
 ### Last step : Configure Proxmox
 
 On `Datacenter` ⇒ `node_name` ⇒ `Realms` we can configure a realm.
-
 
 ![](assets/realm_proxmox_configuration.png)
 

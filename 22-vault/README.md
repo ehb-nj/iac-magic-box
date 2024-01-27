@@ -53,7 +53,7 @@ Docker :
 dnf install -y yum-utils
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 dnf -y update
-dnf -y install docker-ce docker-ce-cli containerd.io
+dnf -y install docker-ce docker-ce-cli containerd.io wget
 ```
 Docker-compose :
 ```
@@ -65,6 +65,9 @@ curl -s https://api.github.com/repos/docker/compose/releases/latest \
     
 chmod +x docker-compose-linux-x86_64
 sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+
+systemctl enable docker 
+systemctl start docker
 ```
 
 ### Grab a certificate from FreeIPA
@@ -91,6 +94,8 @@ And finaly start the service :
 docker-compose up -d
 ```
 
+Finish the configuration in the UI (create admin token and unseal tokens) !!!
+
 ## KeyCloak preparation
 
 We just need to configure a new service with credential from KeyCloak.
@@ -111,6 +116,29 @@ Add groups mapper at "Vault service" level :
 
 
 ## Vault configuration
+
+### Deploy Vault CLI (for your admin host)
+
+MacOS :
+```
+brew tap hashicorp/tap
+brew install hashicorp/tap/vault
+```
+
+Ubuntu :
+```
+sudo apt update && sudo apt install gpg wget
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install gpg wget
+```
+Set the needed variables (and open the necessary ports to be able to reach your Vault host (in your `/etc/profile` for example).
+
+```
+export VAULT_ADDR="https://vault.play.lan:8200"
+export VAULT_TOKEN="xxxxxxxxx"
+```
 
 ### OIDC Configuration
 
@@ -140,7 +168,6 @@ vault write auth/oidc/role/default \
       allowed_redirect_uris="http://localhost:8250/oidc/callback" \
       user_claim="sub" \
       token_policies="default" \
-      user_claim="sub" \
       groups_claim="groups" \
       role_type="oidc"
 ```
@@ -249,9 +276,13 @@ After this configuration you will be able to connect from web interface and comm
 From command line we activate the PKI service :
 
 ```
+dnf install -y jq
 vault secrets enable -path=pki_int pki
 vault secrets tune -max-lease-ttl=43800h pki_int
-vault write -format=json pki/root/sign-intermediate issuer_ref="root-2023" csr=@pki_intermediate.csr format=pem_bundle ttl="43800h"
+vault write -format=json pki_int/intermediate/generate/internal \
+     common_name="vault.play.lan" \
+     issuer_name="play.lan-intermediate" \
+     | jq -r '.data.csr' > pki_intermediate.csr
 ```
 We need to submit this certificate request to FreeIPA. We can submit via the web interface or command line. But first step, we need to configure a new certificate template.
 
