@@ -1,7 +1,7 @@
 # create master
 resource "proxmox_virtual_environment_vm" "vm_worker" {
   count = var.vmdata.worker_count
-  name  = "rke-worker-${format("%02.0f",count.index+1)}"
+  name  = "${var.vmdata.worker_vm_basename}-${format("%02.0f",count.index+1)}"
   description = "Managed by Terraform / RKE2"
   tags        = ["terraform", "ubuntu", "rke2"]
 
@@ -61,7 +61,7 @@ data "template_file" "worker_user_data" {
   count = var.vmdata.worker_count
   template = file("${path.module}/templates/cloud_init_worker.cfg")
   vars = {
-    HOSTNAME = "rke-worker-${format("%02.0f",count.index+1)}",
+    HOSTNAME = "${var.vmdata.worker_vm_basename}-${format("%02.0f",count.index+1)}",
     USERNAME = var.vmdata.username,
     KUBERNETES_WORKER_COUNT = var.vmdata.worker_count,
     KUBERNETES_JOIN_TOKEN = random_password.kube_token.result,
