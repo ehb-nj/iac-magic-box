@@ -1,7 +1,7 @@
 # create master
 resource "proxmox_virtual_environment_vm" "vm_master" {
   count = var.vmdata.master_count
-  name  = "rke-master-${format("%02.0f",count.index+1)}"
+  name  = "${var.vmdata.master_vm_basename}-${format("%02.0f",count.index+1)}"
   description = "Managed by Terraform / RKE2"
   tags        = ["terraform", "ubuntu", "rke2"]
 
@@ -61,7 +61,7 @@ data "template_file" "master_user_data" {
   count = var.vmdata.master_count
   template = file("${path.module}/templates/cloud_init_master.cfg")
   vars = {
-    HOSTNAME = "rke-master-${format("%02.0f",count.index+1)}",
+    HOSTNAME = "${var.vmdata.master_vm_basename}-${format("%02.0f",count.index+1)}",
     USERNAME = var.vmdata.username,
     KUBERNETES_MASTER_ACTUAL = count.index,
     KUBERNETES_MASTER_COUNT = var.vmdata.master_count,
