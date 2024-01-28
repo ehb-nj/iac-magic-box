@@ -76,7 +76,7 @@ resource "proxmox_virtual_environment_file" "master_user_data" {
   count = var.vmdata.master_count
   content_type = "snippets"
   datastore_id = "local"
-  node_name = "pve"
+  node_name = var.vmdata.pve_node
 
   source_raw {
     data = data.template_file.master_user_data[count.index].rendered
