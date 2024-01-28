@@ -45,8 +45,8 @@ resource "proxmox_virtual_environment_vm" "vm_master" {
       }
     }
     dns {
-      domain = "${var.vmdata.rke_domain}"
-      server = "${var.vmdata.ip_dns}"
+      domain  = "${var.vmdata.rke_domain}"
+      servers = ["${var.vmdata.ip_dns}"]
     }
     user_data_file_id = "${proxmox_virtual_environment_file.master_user_data[count.index].id}"
   }
