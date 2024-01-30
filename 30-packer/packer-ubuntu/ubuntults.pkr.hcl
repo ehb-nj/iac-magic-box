@@ -193,11 +193,6 @@ source "proxmox-iso" "ubuntujammy" {
 build {
   sources = ["source.proxmox-iso.ubuntujammy"]
 
-  # Waiting for Cloud-Init to finish
-  provisioner "shell" {
-    inline = ["cloud-init status --wait"]
-  }
-
   # Provisioning the VM Template for Cloud-Init Integration in Proxmox
   provisioner "shell" {
     execute_command = "echo -e '<user>' | sudo -S -E bash '{{ .Path }}'"
