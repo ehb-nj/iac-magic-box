@@ -56,5 +56,4 @@ autoinstall:
     - linux-image-virtual-hwe-22.04
     - qemu-guest-agent
     - sudo
-    - wireguard
     - xfsprogs
