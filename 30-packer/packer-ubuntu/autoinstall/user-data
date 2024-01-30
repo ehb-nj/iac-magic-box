@@ -57,3 +57,14 @@ autoinstall:
     - qemu-guest-agent
     - sudo
     - xfsprogs
+  user-data:
+    package_upgrade: true
+    timezone: Europe/Paris
+    users:
+      - name: packer
+        groups: [adm, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        # password crypted with sha512. default value = "packer"
+        passwd: $6$lhHsNpj6wyEXs7sn$cOf53uNhEBuNOGeYBMZkCrRS.WzsnwkhY0caiAbbXw4AwumP.7W7e8n0r71vbDey7AMYNsLI5ZEaeqKr.DtYM/

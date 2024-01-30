@@ -106,10 +106,13 @@ variable "scsi_controller_type" {
 variable "ssh_handshake_attempts" {
   type = number
 }
-variable "ssh_username" {
+variable "ssh_password" {
   type = string
 }
 variable "ssh_timeout" {
+  type = string
+}
+variable "ssh_username" {
   type = string
 }
 variable "storage_pool" {
@@ -159,6 +162,7 @@ source "proxmox-iso" "ubuntujammy" {
   ssh_pty                  = true
   ssh_timeout              = "${var.ssh_timeout}"
   ssh_username             = "${var.ssh_username}"
+  ssh_password             = "${var.ssh_password}"
   tags                     = "${var.tags}"
   template_description     = "${var.vm_info} - ${local.packer_timestamp}"
   unmount_iso              = true
