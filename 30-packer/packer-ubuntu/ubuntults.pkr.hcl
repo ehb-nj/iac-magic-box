@@ -29,6 +29,26 @@ variable "bridge_name" {
 variable "cloud_init" {
   type = bool
 }
+variable "cpu_type" {
+  type    = string
+  default = "kvm64"
+}
+variable "disk_discard" {
+  type    = bool
+  default = true
+}
+variable "disk_format" {
+  type    = string
+  default = "qcow2"
+}
+variable "disk_size" {
+  type    = string
+  default = "16G"
+}
+variable "disk_type" {
+  type    = string
+  default = "scsi"
+}
 variable "io_thread" {
   type = bool
 }
@@ -42,6 +62,18 @@ variable "iso_storage_pool" {
 variable "machine_default_type" {
   type    = string
   default = "pc"
+}
+variable "nb_core" {
+  type    = number
+  default = 1
+}
+variable "nb_cpu" {
+  type    = number
+  default = 1
+}
+variable "nb_ram" {
+  type    = number
+  default = 1024
 }
 variable "network_model" {
   type    = string
@@ -71,54 +103,22 @@ variable "qemu_agent_activation" {
 variable "scsi_controller_type" {
   type = string
 }
+variable "ssh_handshake_attempts" {
+  type = number
+}
+variable "ssh_username" {
+  type = string
+}
 variable "ssh_timeout" {
+  type = string
+}
+variable "storage_pool" {
   type = string
 }
 variable "tags" {
   type = string
 }
-variable "cpu_type" {
-  type    = string
-  default = "kvm64"
-}
 variable "vm_info" {
-  type = string
-}
-variable "disk_discard" {
-  type    = bool
-  default = true
-}
-variable "disk_format" {
-  type    = string
-  default = "qcow2"
-}
-variable "disk_size" {
-  type    = string
-  default = "16G"
-}
-variable "disk_type" {
-  type    = string
-  default = "scsi"
-}
-variable "nb_core" {
-  type    = number
-  default = 1
-}
-variable "nb_cpu" {
-  type    = number
-  default = 1
-}
-variable "nb_ram" {
-  type    = number
-  default = 1024
-}
-variable "ssh_username" {
-  type = string
-}
-variable "ssh_handshake_attempts" {
-  type = number
-}
-variable "storage_pool" {
   type = string
 }
 variable "vm_id" {
