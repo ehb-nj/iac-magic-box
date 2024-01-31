@@ -21,21 +21,21 @@ source "proxmox-iso" "windows" {
     unmount  = true
   }
   additional_iso_files {
-    device   = "sata5"
+    device           = "sata5"
     iso_checksum     = "${var.scripts_checksum}"
     iso_storage_pool = "local"
     iso_url          = "${var.scripts_iso}"
-    unmount  = true
+    unmount          = true
   }
   cloud_init              = true
   cloud_init_storage_pool = "${local.proxmox_storage}"
   communicator            = "winrm"
   cores                   = "${var.vm_cpu_cores}"
   disks {
-    disk_size         = "${var.vm_disk_size}"
-    format            = "raw"
-    storage_pool      = "${local.proxmox_storage}"
-    type              = "sata"
+    disk_size    = "${var.vm_disk_size}"
+    format       = "raw"
+    storage_pool = "${local.proxmox_storage}"
+    type         = "sata"
   }
   insecure_skip_tls_verify = "${local.proxmox_skip_tls_verify}"
   iso_file                 = "${var.iso_file}"
@@ -68,15 +68,15 @@ build {
   provisioner "powershell" {
     elevated_password = "${var.winrm_password}"
     elevated_user     = "${var.winrm_username}"
-    scripts           = ["${path.root}/scripts/sysprep/cloudbase-init.ps1"]
     max_retries       = 3
+    scripts           = ["${path.root}/scripts/sysprep/cloudbase-init.ps1"]
   }
 
   provisioner "powershell" {
     elevated_password = "${var.winrm_password}"
     elevated_user     = "${var.winrm_username}"
+    max_retries       = 3
     pause_before      = "1m0s"
     scripts           = ["${path.root}/scripts/sysprep/cloudbase-init-p2.ps1"]
-    max_retries       = 3
   }
 }
