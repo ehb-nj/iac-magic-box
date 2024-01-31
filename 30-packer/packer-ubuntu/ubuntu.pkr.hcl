@@ -96,6 +96,9 @@ variable "proxmox_api_url" {
 variable "proxmox_node" {
   type = string
 }
+variable "proxmox_pool" {
+  type = string
+}
 variable "qemu_agent_activation" {
   type    = bool
   default = true
@@ -126,11 +129,18 @@ variable "vm_info" {
 }
 variable "vm_id" {
   type    = number
-  default = 99999
+  default = 9999
 }
 variable "vm_name" {
   type = string
 }
+variable "http_port_max" {
+  type = string
+}
+variable "http_port_min" {
+  type = string
+}
+
 
 locals {
   packer_timestamp = formatdate("YYYYMMDD-hhmm", timestamp())
@@ -147,6 +157,8 @@ source "proxmox-iso" "ubuntujammy" {
   cores                    = "${var.nb_core}"
   cpu_type                 = "${var.cpu_type}"
   http_directory           = "autoinstall"
+  http_port_min            = "${var.http_port_min}"
+  http_port_max            = "${var.http_port_max}"
   insecure_skip_tls_verify = true
   iso_file                 = "${var.iso_file}"
   machine                  = "${var.machine_default_type}"
@@ -155,6 +167,7 @@ source "proxmox-iso" "ubuntujammy" {
   os                       = "${var.os_type}"
   password                 = "${var.proxmox_password}"
   proxmox_url              = "${var.proxmox_api_url}"
+  pool                     = "${var.proxmox_pool}"
   qemu_agent               = "${var.qemu_agent_activation}"
   scsi_controller          = "${var.scsi_controller_type}"
   sockets                  = "${var.nb_cpu}"

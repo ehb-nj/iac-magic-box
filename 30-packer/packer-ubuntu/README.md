@@ -23,7 +23,7 @@ sudo apt update
 sudo apt install packer
 ```
 
-## Proxmxox preparation
+## Proxmox preparation
 
 You need to create the "Templates" pool on your Proxmox (Datacenter->Permissions->Pools). Also, upload the Ubuntu 22.04 official ISO into your local storage. The ISO name must bu changed in the packer vars file.
 
@@ -38,16 +38,25 @@ pveum roleadd Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datas
 pveum acl modify / -user 'infra_as_code@pve' -role Packer
 ```
 
+
 ## Build image template
 
 Ubuntu 22.04 will be installed automatically with its cloud-init file, `user-data`. You must change some values inside to match your needs. Some packages are installed (ca-certificates, cloud-init, qemu-guest-agent, sudo) during the installation to facilitate the integration.
 
-Variables for packer are located in the file `./packer/packer-ubuntu/customubuntu.pkvars.hcl`. You must adjust them to your environment and your needs.
+You need a connection between the image created and the machine from which you are running Packer (defaut port to open is between 8000 and 8200, you can adjust them on the variables file).
+
+Copy the variable example file :
+
+```bash
+cp ubuntu.pkvars.hcl.example ubuntu.pkvars.hcl 
+```
+
+Variables for packer are located in the file `ubuntu.pkvars.hcl`. You must adjust them to your environment and your needs.
 
 Launch the generation with these commands :
 
 ```bash
 packer init .
-packer validate -var-file=customubuntu.pkrvars.hcl .
-packer build -var-file=customubuntu.pkvars.hcl .
+packer validate -var-file=ubuntu.pkrvars.hcl .
+packer build -var-file=ubuntu.pkrvars.hcl .
 ```
