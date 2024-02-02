@@ -11,9 +11,9 @@ variable "bios_type" {
   type = string
 }
 
-variable "boot_command" {
-  type = string
-}
+#variable "boot_command" {
+#  type = string
+#}
 
 variable "boot_wait" {
   type = string
@@ -63,6 +63,10 @@ variable "proxmox_username" {
 variable "proxmox_password" {
   type      = string
   sensitive = true
+}
+
+variable "proxmox_pool" {
+  type = string
 }
 
 variable "proxmox_api_url" {
@@ -164,13 +168,63 @@ variable "vm_name" {
   type = string
 }
 
+variable "tpl_address" {
+  type = string
+}
+
+variable "tpl_netmask" {
+  type = string
+}
+
+variable "tpl_gtw" {
+  type = string
+}
+
+variable "tpl_dns" {
+  type = string
+}
+
+variable "tpl_domain" {
+  type = string
+}
+
+variable "http_port_max" {
+  type = string
+}
+variable "http_port_min" {
+  type = string
+}
+
 locals {
   packer_timestamp = formatdate("YYYYMMDD-hhmm", timestamp())
 }
 
 source "proxmox-iso" "debian12" {
   bios                     = "${var.bios_type}"
-  boot_command             = ["${var.boot_command}"]
+  #boot_command             = ["${var.boot_command}"]
+  boot_command = [
+    "<esc><wait>",
+    "install <wait>",
+    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+    "debian-installer=fr_FR.UTF-8 <wait>",
+    "auto <wait>",
+    "locale=fr_FR.UTF-8 <wait>",
+    "kbd-chooser/method=fr <wait>",
+    "keyboard-configuration/xkb-keymap=fr <wait>",
+    "netcfg/get_ipaddress=${var.tpl_address} <wait>",
+    "netcfg/get_netmask=${var.tpl_netmask} <wait>",
+    "netcfg/get_gateway=${var.tpl_gtw} <wait>",
+    "netcfg/get_nameservers=${var.tpl_dns} <wait>",
+    "netcfg/disable_autoconfig=true <wait>",
+    "netcfg/get_hostname=template <wait>",
+    "netcfg/get_domain=${var.tpl_domain} <wait>",
+    "fb=false <wait>",
+    "debconf/frontend=noninteractive <wait>",
+    "console-setup/ask_detect=false <wait>",
+    "console-keymaps-at/keymap=fr <wait>",
+    "grub-installer/bootdev=/dev/sda <wait>",
+    "<enter><wait>"
+  ]
   boot_wait                = "${var.boot_wait}"
   cloud_init               = "${var.cloud_init}"
   cloud_init_storage_pool  = "${var.storage_pool}"
@@ -178,6 +232,8 @@ source "proxmox-iso" "debian12" {
   cores                    = "${var.nb_core}"
   cpu_type                 = "${var.cpu_type}"
   http_directory           = "autoinstall"
+  http_port_min            = "${var.http_port_min}"
+  http_port_max            = "${var.http_port_max}"
   insecure_skip_tls_verify = true
   iso_file                 = "${var.iso_file}"
   machine                  = "${var.machine_default_type}"
@@ -186,6 +242,7 @@ source "proxmox-iso" "debian12" {
   os                       = "${var.os_type}"
   password                 = "${var.proxmox_password}"
   proxmox_url              = "${var.proxmox_api_url}"
+  pool                     = "${var.proxmox_pool}"
   qemu_agent               = "${var.qemu_agent_activation}"
   scsi_controller          = "${var.scsi_controller_type}"
   sockets                  = "${var.nb_cpu}"
@@ -219,4 +276,16 @@ source "proxmox-iso" "debian12" {
 
 build {
   sources = ["source.proxmox-iso.debian12"]
+  
+  # Copy default cloud-init config
+  provisioner "file" {
+    destination = "/etc/cloud/cloud.cfg"
+    source      = "ressources/cloud.cfg"
+  }
+  
+  # Copy Proxmox cloud-init config
+  provisioner "file" {
+    destination = "/etc/cloud/cloud.cfg.d/99-pve.cfg"
+    source      = "ressources/99-pve.cfg"
+  }
 }

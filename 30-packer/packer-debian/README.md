@@ -42,12 +42,20 @@ pveum acl modify / -user 'infra_as_code@pve' -role Packer
 
 Debian 12 will be installed automatically with its preseed file. You must change some values inside to match your needs. Some packages are installed (ca-certificates, cloud-init, qemu-guest-agent, sudo) during the installation to facilitate the integration.
 
-Variables for packer are located in the file `./packer/packer-debian/debian12vars.pkvars.hcl`. You must adjust them to your environment and your needs.
+You need a connection between the image created and the machine from which you are running Packer (defaut port open is between 8000 and 8200, you can adjust them on the variables file).
+
+Copy the variable example file :
+
+```bash
+cp debian.pkrvars.hcl.example debian.pkrvars.hcl
+```
+
+Variables for packer are located in the file `debian.pkvars.hcl`. You must adjust them to your environment and your needs.
 
 Launch the generation with these commands :
 
 ```bash
 packer init .
-packer validate -var-file=debian12vars.pkrvars.hcl .
-packer build -var-file=debian12vars.pkvars.hcl .
+packer validate -var-file=debian.pkrvars.hcl .
+packer build -var-file=debian.pkrvars.hcl .
 ```
