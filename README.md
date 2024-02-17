@@ -35,6 +35,9 @@ It is compatible with cloud images and cloud-init images. It's a perfect start f
 
 [Proxmox Documentation](./01-proxmox/README.md)
 
+> [!NOTE] 
+> In this documentation, we will deal with the most common case, usually referring to a single node. It's up to you to adapt the scripts and documentation if you have several nodes and want to deploy the services elsewhere. The node name, the storage name, the pool name must be adapted to your configuration.
+
 ## 10 - OpenWRT
 
 OpenWRT is choosen for its lightweight footprint for the core network. It's the main router/firewall of our architecture.
