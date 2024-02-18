@@ -81,6 +81,14 @@ We will provide an example to deploy RKE2 in our infrastructure (it will be the 
 
 RKE2 is chosen by default for the Kubernetes part, as it is complete and secure.
 
+[RKE2/K3S Documentation](./40-terraform/rke2-k3s/README.md)
+
+### K3S
+
+For homelab (only), you'll need lightweight Kubernetes. RKE2 is heavy and requires a lot of resources.
+
+[RKE2/K3S Documentation](./40-terraform/rke2-k3s/README.md)
+
 ## 50 - Ansible
 
 Some Ansible Playbook will be used mainly for operational purpose.
