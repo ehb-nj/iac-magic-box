@@ -31,7 +31,7 @@ You need to create the "Templates" pool on your Proxmox (Datacenter->Permissions
 
 ```bash
 pveum useradd infra_as_code@pve
-pveum passwd infra_as_code
+pveum passwd infra_as_code@pve
 # Role Packer Creation
 pveum roleadd Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory Datastore.AllocateTemplate Datastore.Audit Datastore.AllocateSpace Sys.Modify VM.Config.Options VM.Allocate VM.Audit VM.Console VM.Config.CDROM VM.Config.Cloudinit VM.Config.Network VM.PowerMgmt VM.Config.HWType VM.Monitor SDN.Use"
 # Role attribution
