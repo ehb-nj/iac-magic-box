@@ -34,13 +34,13 @@ Change the root password, and we can now use the SSH key (used for the first ini
 ### Resolve docker issues with NetworkManager
 
 You need to add to `/etc/NetworkManager/NetworkManager.conf` this configuration with a wildcard on the name veth*:
-```
+```bash
 [keyfile]
 unmanaged-devices=interface-name:veth*
 ```
 Then restart the NetworkManager service with:
 
-```
+```bash
 systemctl restart NetworkManager
 ```
 
@@ -49,14 +49,14 @@ systemctl restart NetworkManager
 ### Deploy Docker / Docker-Compose
 
 Docker :
-```
+```bash
 dnf install -y yum-utils
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 dnf -y update
 dnf -y install docker-ce docker-ce-cli containerd.io wget
 ```
 Docker-compose :
-```
+```bash
 curl -s https://api.github.com/repos/docker/compose/releases/latest \
   | grep browser_download_url \
   | grep docker-compose-linux-x86_64 \
@@ -72,7 +72,7 @@ systemctl start docker
 
 ### Grab a certificate from FreeIPA
 
-```
+```bash
 ipa-client-install --server=ipa.play.lan --domain play.lan --no-ntp
 
 ipa service-add HTTP/vault.play.lan
@@ -82,7 +82,7 @@ ipa-getcert request -r -f /etc/pki/tls/certs/vault.play.lan.crt -k /etc/pki/tls/
 ### Launch the service
 
 Create the folders we need :
-```
+```bash
 mkdir -p volumes/{ssl,file,logs}
 ```
 - Copy the certificate and key file in the ssl folder.
@@ -90,7 +90,7 @@ mkdir -p volumes/{ssl,file,logs}
 
 And finaly start the service :
 
-```
+```bash
 docker-compose up -d
 ```
 
@@ -182,7 +182,7 @@ path "/secret/*" {
 }
 ```
 - vault-admin
-```
+```bash
 path "sys/health"
 {
   capabilities = ["read", "sudo"]
@@ -275,7 +275,7 @@ After this configuration you will be able to connect from web interface and comm
 
 From command line we activate the PKI service :
 
-```
+```bash
 dnf install -y jq
 vault secrets enable -path=pki_int pki
 vault secrets tune -max-lease-ttl=43800h pki_int
@@ -288,7 +288,7 @@ We need to submit this certificate request to FreeIPA. We can submit via the web
 
 SubCA File (`SubCA.cfg`):
 
-```
+```bash
 auth.instance_id=raCertAuth
 classId=caEnrollImpl
 desc=This certificate profile is for enrolling server certificates with IPA-RA agent authentication.
@@ -420,15 +420,15 @@ profileId=SubCA
 visible=false
 ```
 We need to connect to ipa :
-```
+```bash
 kinit admin
 ```
 And import this new certificate template :
-```
+```bash
 ipa certprofile-import SubCA --desc "Subordinate CA" --file SubCA.cfg --store=1
 ```
 And finaly generate the certificate :
-```
+```bash
 ipa caacl-add SubCA
 ipa caacl-add-profile SubCA --certprofile SubCA
 ipa caacl-add-ca SubCA --ca ipa
@@ -436,7 +436,7 @@ ipa caacl-add-host SubCA --hosts vault.play.lan
 ipa cert-request pki_intermediate.csr --principal=host/vault.play.lan --profile-id SubCA
 ```
 Copy this new generated certificate to your "command center". And add the certificate to Vault.
-```
+```bash
 vault write pki_int/intermediate/set-signed certificate=@intermediate.cert.pem
 ```
 You have now an subordinate PKI !!!
@@ -445,7 +445,7 @@ You have now an subordinate PKI !!!
 
 For a complete integration with services we need an ACME Responder to generate certificates automatically.
 
-```
+```bash
 vault write pki_int/config/cluster path=https://vault.play.lan:8200/v1/pki_int aia_path=https://vault.play.lan:8200/v1/pki_int
 vault write pki_int/roles/learn issuer_ref="$(vault read -field=default pki_int/config/issuers)" allow_any_name=true max_ttl="720h" no_store=false
 vault secrets tune \
@@ -464,7 +464,14 @@ Routes must be opened from the play.lan (OpenWRT) firewall. By default, the 2 co
 
 #### PVE
 
+Don't forget to add CA certificate to the local store of the machine.
+```bash
+cp <certificate.pem> /usr/local/share/ca-certificates/ipa.crt
+update-ca-certificates
 ```
+
+
+```bash
 pvenode acme account register default root@play.lan --directory https://vault.play.lan:8200/v1/pki_int/acme/directory
 pvenode config set --acme domains=pve.play.lan
 pvenode acme cert order
@@ -475,22 +482,22 @@ pvenode acme cert order
 > [!IMPORTANT]
 > Ignore LuCI configuration, it's not working anymore.
 
-```
+```bash
 opkg update
 opkg install acme acme-dnsapi luci-app-acme
 ```
 Update the package :
-```
+```bash
 wget https://raw.githubusercontent.com/acmesh-official/acme.sh/master/acme.sh
 chmod +x acme.sh
 ./acme.sh --install --home /usr/lib/acme --cert-home /etc/acme/certs --config-home /etc/acme/config --accountemail root@play.lan --accountkey /etc/acme/account --useragent "" --log /var/log/acme.log
 ```
 Add defaut server in `/etc/acme/config/account.conf` :
-```
+```bash
 DEFAULT_ACME_SERVER='https://vault.play.lan:8200/v1/pki_int/acme/directory'
 ```
 Add these lines in  `/etc/profile`
-```
+```bash
 export LE_WORKING_DIR="/usr/lib/acme"
 export LE_CONFIG_HOME="/etc/acme/config"
 alias acme.sh="/usr/lib/acme/acme.sh --config-home '/etc/acme/config'"

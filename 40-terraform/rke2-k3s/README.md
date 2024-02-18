@@ -1,6 +1,8 @@
-# RKE2 Cluster
+# RKE2/K3S Cluster
 
-## Prerequisites 
+## Prerequisites
+
+For small CPU/RAM footprint prefer the K3S deployment
 
 - Vault available from the host where terraform is launched
 - Some Kubernetes knowledge
@@ -73,7 +75,7 @@ pveum role modify Packer -privs "VM.Config.Disk VM.Config.CPU VM.Config.Memory D
 Create secrets in Vault :
 ```
 vault secrets enable -path=secrets/terraform kv
-vault kv put secrets/terraform/proxmox tokenid="xxx" proxmox_url="xxx"
+vault kv put secrets/terraform/proxmox tokenid='xxx' proxmox_url="xxx"
 vault kv put secrets/terraform/ssh public_key="xxxx"
 ```
 ### Terraform preparation
@@ -82,7 +84,7 @@ Copy the env.tfvars.example to env.tfvars :
 ```
 cp env.tfvars.example env.tfvars
 ```
-Modify the variables to match your environment.
+Modify the variables to match your environment. Change the Kubernetes deployment type with this variable : `kubernetes = "rke2" # rke2 or k3s`
 
 ### Launching the magic
 
@@ -114,9 +116,9 @@ You need to copy the `/etc/rancher/rke2/rke2.yaml` (from the rke-master-01) to y
 kubectl get nodes
 
 NAME           STATUS   ROLES                       AGE   VERSION
-rke-master-0   Ready    control-plane,etcd,master   25m   v1.26.11+rke2r1
-rke-worker-0   Ready    <none>                      25m   v1.26.11+rke2r1
-rke-worker-1   Ready    <none>                      25m   v1.26.11+rke2r1
+rke-master-01   Ready    control-plane,etcd,master   25m   v1.26.11+rke2r1
+rke-worker-01   Ready    <none>                      25m   v1.26.11+rke2r1
+rke-worker-02   Ready    <none>                      25m   v1.26.11+rke2r1
 ```
 
 ## References
