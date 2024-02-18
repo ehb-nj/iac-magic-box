@@ -2,8 +2,8 @@
 resource "proxmox_virtual_environment_vm" "vm_worker" {
   count = var.vmdata.worker_count
   name  = "${var.vmdata.worker_vm_basename}-${format("%02.0f",count.index+1)}"
-  description = "Managed by Terraform / RKE2"
-  tags        = ["terraform", "ubuntu", "rke2"]
+  description = "Managed by Terraform / ${var.vmdata.kubernetes}"
+  tags        = ["terraform", "ubuntu", "${var.vmdata.kubernetes}"]
 
   node_name = var.vmdata.pve_node
 
@@ -20,6 +20,7 @@ resource "proxmox_virtual_environment_vm" "vm_worker" {
     datastore_id = var.vmdata.diskstorage
     interface    = "scsi0"
     size = var.vmdata.worker_disk_size
+    file_format = "raw"
   }
 
   cpu {
@@ -35,14 +36,16 @@ resource "proxmox_virtual_environment_vm" "vm_worker" {
     bridge = var.vmdata.network_bridge
     model = "virtio"
     firewall = false
+    mtu = var.vmdata.mtu
   }
 
   initialization {
+    datastore_id = var.vmdata.diskstorage
     ip_config {
       ipv4 {
         address = "${var.vmdata.ip_first_three_block}.${var.vmdata.ip_last_block_start + var.vmdata.master_count + count.index}/24"
         gateway = "${var.vmdata.ip_gw}"
-      }
+      } 
     }
     dns {
       domain  = "${var.vmdata.rke_domain}"
@@ -53,7 +56,7 @@ resource "proxmox_virtual_environment_vm" "vm_worker" {
 
   pool_id = "${var.vmdata.pve_pool}"
 
-  depends_on = [ proxmox_virtual_environment_file.worker_user_data, proxmox_virtual_environment_vm.vm_master ]
+  depends_on = [ proxmox_virtual_environment_file.worker_user_data, proxmox_virtual_environment_vm.vm_master[0] ]
 }
 
 # template file for worker
@@ -61,6 +64,7 @@ data "template_file" "worker_user_data" {
   count = var.vmdata.worker_count
   template = file("${path.module}/templates/cloud_init_worker.cfg")
   vars = {
+    KUBERNETES_DISTRIB = var.vmdata.kubernetes,
     HOSTNAME = "${var.vmdata.worker_vm_basename}-${format("%02.0f",count.index+1)}",
     USERNAME = var.vmdata.username,
     KUBERNETES_WORKER_COUNT = var.vmdata.worker_count,
@@ -79,7 +83,7 @@ resource "proxmox_virtual_environment_file" "worker_user_data" {
 
   source_raw {
     data = data.template_file.worker_user_data[count.index].rendered
-    file_name = "cloud_init_rke-worker-${format("%02.0f",count.index+1)}.yml"
+    file_name = "cloud_init_${var.vmdata.kubernetes}-worker-${format("%02.0f",count.index+1)}.yml"
   }
   depends_on = [ data.template_file.worker_user_data ]
 }

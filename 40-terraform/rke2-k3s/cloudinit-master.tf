@@ -2,8 +2,8 @@
 resource "proxmox_virtual_environment_vm" "vm_master" {
   count = var.vmdata.master_count
   name  = "${var.vmdata.master_vm_basename}-${format("%02.0f",count.index+1)}"
-  description = "Managed by Terraform / RKE2"
-  tags        = ["terraform", "ubuntu", "rke2"]
+  description = "Managed by Terraform / ${var.vmdata.kubernetes}"
+  tags        = ["terraform", "ubuntu", "${var.vmdata.kubernetes}"]
 
   node_name = var.vmdata.pve_node
 
@@ -20,6 +20,7 @@ resource "proxmox_virtual_environment_vm" "vm_master" {
     datastore_id = var.vmdata.diskstorage
     interface    = "scsi0"
     size = var.vmdata.master_disk_size
+    file_format = "raw"
   }
 
   cpu {
@@ -35,9 +36,11 @@ resource "proxmox_virtual_environment_vm" "vm_master" {
     bridge = var.vmdata.network_bridge
     model = "virtio"
     firewall = false
+    mtu = var.vmdata.mtu
   }
 
   initialization {
+    datastore_id = var.vmdata.diskstorage
     ip_config {
       ipv4 {
         address = "${var.vmdata.ip_first_three_block}.${var.vmdata.ip_last_block_start + count.index}/24"
@@ -51,7 +54,7 @@ resource "proxmox_virtual_environment_vm" "vm_master" {
     user_data_file_id = "${proxmox_virtual_environment_file.master_user_data[count.index].id}"
   }
 
-  depends_on = [ proxmox_virtual_environment_file.master_user_data ]
+  depends_on = [ proxmox_virtual_environment_file.master_user_data, proxmox_virtual_environment_vm.vm_master[0] ]
 
   pool_id = "${var.vmdata.pve_pool}"
 }
@@ -63,6 +66,7 @@ data "template_file" "master_user_data" {
   vars = {
     HOSTNAME = "${var.vmdata.master_vm_basename}-${format("%02.0f",count.index+1)}",
     USERNAME = var.vmdata.username,
+    KUBERNETES_DISTRIB = var.vmdata.kubernetes,
     KUBERNETES_MASTER_ACTUAL = count.index,
     KUBERNETES_MASTER_COUNT = var.vmdata.master_count,
     KUBERNETES_MASTER_JOIN_IP = "${var.vmdata.ip_first_three_block}.${var.vmdata.ip_last_block_start}",
@@ -80,7 +84,7 @@ resource "proxmox_virtual_environment_file" "master_user_data" {
 
   source_raw {
     data = data.template_file.master_user_data[count.index].rendered
-    file_name = "cloud_init_rke-master-${format("%02.0f",count.index+1)}.yml"
+    file_name = "cloud_init_${var.vmdata.kubernetes}-master-${format("%02.0f",count.index+1)}.yml"
   }
   depends_on = [ data.template_file.master_user_data ,random_password.kube_token ]
 }

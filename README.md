@@ -70,9 +70,7 @@ Different steps and prerequisites are required to make this part work. Each Pack
 
 [Packer Documentation](./30-packer/README.md)
 
-## 40 - Terraform / RKE2
-
-### Terraform
+## 40 - Terraform
 
 The Terraform part is left up to users to deploy their own services and I.S. as they see fit. However, examples will be provided. 
 We will provide an example to deploy RKE2 in our infrastructure (it will be the main Terraform project).
@@ -80,6 +78,14 @@ We will provide an example to deploy RKE2 in our infrastructure (it will be the 
 ### RKE2
 
 RKE2 is chosen by default for the Kubernetes part, as it is complete and secure.
+
+[RKE2/K3S Documentation](./40-terraform/rke2-k3s/README.md)
+
+### K3S
+
+For homelab (only), you'll need lightweight Kubernetes. RKE2 is heavy and requires a lot of resources.
+
+[RKE2/K3S Documentation](./40-terraform/rke2-k3s/README.md)
 
 ## 50 - Ansible
 
