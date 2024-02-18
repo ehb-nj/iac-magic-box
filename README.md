@@ -70,9 +70,7 @@ Different steps and prerequisites are required to make this part work. Each Pack
 
 [Packer Documentation](./30-packer/README.md)
 
-## 40 - Terraform / RKE2
-
-### Terraform
+## 40 - Terraform
 
 The Terraform part is left up to users to deploy their own services and I.S. as they see fit. However, examples will be provided. 
 We will provide an example to deploy RKE2 in our infrastructure (it will be the main Terraform project).
