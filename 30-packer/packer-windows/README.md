@@ -42,7 +42,7 @@ Download here : <https://cloudbase.it/cloudbase-init/>
 Put the msi here (and rename it) :
 
 ```bash
-30-packer/packer-windows/sysprep/CloudbaseInitSetup_Stable_x64.msi
+30-packer/packer-windows/scripts/sysprep/CloudbaseInitSetup_Stable_x64.msi
 ```
 
 ## Build ISO images
@@ -102,7 +102,10 @@ proxmox_username="infra_as_code@pve" \
 proxmox_url="https://pve.play.lan:8006/api2/json" \
 proxmox_password="infra_as_code" \
 proxmox_skip_tls_verify="true" \
-proxmox_node="pve" proxmox_pool="Templates" \ proxmox_storage="local-lvm"
+proxmox_node="pve" \
+proxmox_pool="Templates" \
+proxmox_storage="local-lvm" \
+proxmox_bridge="dep"
 ```
 
 ### Start ISO generation
@@ -133,6 +136,7 @@ vm_name               = "WinServer2019x64-cloudinit-raw"
 vm_sockets            = "1"
 winrm_password        = "vagrant"
 winrm_username        = "vagrant"
+tags                  = "template windows_server_2019 packer"
 
 ```
 

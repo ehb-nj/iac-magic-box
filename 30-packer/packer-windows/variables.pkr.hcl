@@ -13,6 +13,7 @@ variable "vm_name" {}
 variable "vm_sockets" {}
 variable "winrm_password" {}
 variable "winrm_username" {}
+variable "tags" {}
 
 locals {
   proxmox_node            = "${vault("/secrets/packer-windows/proxmox", "proxmox_node")}"
@@ -22,4 +23,5 @@ locals {
   proxmox_storage         = "${vault("/secrets/packer-windows/proxmox", "proxmox_storage")}"
   proxmox_url             = "${vault("/secrets/packer-windows/proxmox", "proxmox_url")}"
   proxmox_username        = "${vault("/secrets/packer-windows/proxmox", "proxmox_username")}"
+  proxmox_bridge          = "${vault("/secrets/packer-windows/proxmox", "proxmox_bridge")}"
 }

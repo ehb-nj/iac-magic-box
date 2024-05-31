@@ -41,7 +41,7 @@ source "proxmox-iso" "windows" {
   iso_file                 = "${var.iso_file}"
   memory                   = "${var.vm_memory}"
   network_adapters {
-    bridge = "vmbr0"
+    bridge = "${local.proxmox_bridge}"
     model  = "virtio"
   }
   node                 = "${local.proxmox_node}"
@@ -60,6 +60,7 @@ source "proxmox-iso" "windows" {
   winrm_timeout        = "30m"
   winrm_use_ssl        = true
   winrm_username       = "${var.winrm_username}"
+  tags                 = "${var.tags}"
 }
 
 build {
